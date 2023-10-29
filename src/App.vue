@@ -125,6 +125,7 @@ main{
   left: 25%;
   top: 5%;
   width: 50%;
+  min-height: 400px;
   height: 90vh;
   border: 1px solid black;
   border-radius: 10px;
@@ -134,6 +135,7 @@ main{
 .display{
   width: 90%;
   height: 10%;
+  min-height: 50px;
   padding: 5px;margin: 10px auto;
   background-color: white;
   border: 1px solid darkslategrey;
@@ -167,9 +169,6 @@ main{
   cursor: pointer;
 }
 
-/* .pavButton:last-child{
-  background-color: rgb(2, 86, 114);
-} */
 
 .pavButton:hover{
   font-weight: bold;
@@ -181,5 +180,27 @@ main{
   background-color: rgb(231, 102, 42);
 }
 
+@media (max-width:700px){
+main{
+  height: 60%
+}
+.pavButton{
+  font-size: 20px;
+}
+};
+
+@media (max-width:550px){
+main{
+  height: 50%
+}
+.pavButton{
+  font-size: 14px;
+}
+
+};
+
+@media screen {
+  
+}
 
 </style>
