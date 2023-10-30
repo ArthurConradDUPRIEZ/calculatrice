@@ -51,31 +51,74 @@ function remove(){                                                      // fonct
 function del(){                                                         // fonction remettant à 0 l'expression 
   expression.value = '';
 }
-function calculation(){                                                 // fonction qui calcule l'espression et l'affiche dans le resultat
-  result.value = eval(expression.value);
-  savedExpression.value = expression.value;
+function calculation() {
+  try {
+    result.value = eval(expression.value);
+    savedExpression.value = expression.value;
+  } catch (error) {
+    window.alert("Une erreur s'est produite lors de la modification du signe. Veuillez vérifier l'expression.");
+  }
 }
+
 function save(){                                                        // fonction permettant de revenir à la dernière expression non calculée
   expression.value = savedExpression.value;
 }
-function puissance(){                                                   // fonction permettant de calculer le carré de l'expression
-  result.value = eval(expression.value) * eval(expression.value);
-  expression.value = ''
+function puissance() {
+  try {
+    if (expression.value === '') {
+      window.alert("L'expression est vide. Veuillez entrer une valeur avant d'effectuer cette opération.");
+    } else {
+      result.value = eval(expression.value) * eval(expression.value);
+      expression.value = '';
+    }
+  } catch (error) {
+    window.alert("Une erreur s'est produite lors du calcul de la puissance. Veuillez vérifier l'expression.");
+  }
 }
-function pourcent(){                                                    // fonction permettant d'afficher l'expression en pourcentage
-  result.value = eval(expression.value) / 100;
-  expression.value = ''
+
+
+function pourcent() {
+  try {
+    if (expression.value === '') {
+      window.alert("L'expression est vide. Veuillez entrer une valeur avant d'effectuer cette opération.");
+    } else {
+      result.value = eval(expression.value) / 100;
+      expression.value = '';
+    }
+  } catch (error) {
+    window.alert("Une erreur s'est produite lors du calcul du pourcentage. Veuillez vérifier l'expression.");
+  }
 }
-function fraction(){                                                    // fonction permettant de calculer l'inverse de l'expression
-  result.value =  1 / eval(expression.value);
-  expression.value = ''
+
+function fraction() {
+  try {
+    if (expression.value === '') {
+      window.alert("L'expression est vide. Veuillez entrer une valeur avant d'effectuer cette opération.");
+    } else {
+      result.value = 1 / eval(expression.value);
+      expression.value = '';
+    }
+  } catch (error) {
+    window.alert("Une erreur s'est produite lors du calcul de la fraction. Veuillez vérifier l'expression.");
+  }
 }
+
+
 function recup(){                                                       // fonction permettant de recupérer le résultat et de le réintroduire dans l'expression
   expression.value = result.value.toString();
 }
-function signe(){                                                       // fonction permettant de modifier le signe de l'expression
-  result.value = eval(expression.value) * -1
+function signe() {
+  try {
+    if (expression.value === '') {
+      window.alert("L'expression est vide. Veuillez entrer une valeur pour la modifier.");
+    } else {
+      result.value = eval(expression.value) * -1;
+    }
+  } catch (error) {
+    window.alert("Une erreur s'est produite lors de la modification du signe. Veuillez vérifier l'expression.");
+  }
 }
+
 
 const listInput = ref([
   {
@@ -234,12 +277,6 @@ function handleKeydown(event) {
   }
 }
 
-function changeTheme(newTheme){
-  console.log('Le thème a changé : ', newTheme);
-};
-
-watch(theme, changeTheme)
-
 onMounted(() => {
   window.addEventListener('keydown', handleKeydown);
 
@@ -321,13 +358,13 @@ header{
 }
 
 
-.pavButton:hover{
+#pave .pavButton:hover{
   font-weight: bold;
   border: 2px solid black;
   background-color: rgb(231, 133, 42);
 }
 
-.pavButton:active, .pavButton.clicked{
+#pave .pavButton:active, .pavButton.clicked{
   background-color: rgb(231, 102, 42);
 }
 
