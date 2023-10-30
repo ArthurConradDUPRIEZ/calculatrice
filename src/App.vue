@@ -21,11 +21,11 @@
     </header>
     <main>
       <div id="calculatruice">
-        <div class="display">
-            <div class="expression">{{ expression }}</div>
-            <div class="result">{{ result }}</div>
+        <div id="display">
+            <div id="expression">{{ expression }}</div>
+            <div id="result">{{ result }}</div>
         </div>
-        <div class="pave">
+        <div id="pave">
           <input v-for="item in listInput" type="button" class="pavButton" :value="item.button" @click="item.function">
         </div> 
       </div>
@@ -272,14 +272,14 @@ header{
   left: 25%;
   top: 5%;
   width: 50%;
-  min-height: 400px;
+  /* min-height: 400px; */
   height: 90vh;
   border: 3px solid black;
   border-radius: 10px;
   background-color: rgb(97, 114, 242);
 }
 
-.display{
+#display{
   width: 90%;
   height: 10%;
   min-height: 50px;
@@ -292,13 +292,13 @@ header{
   align-items: flex-end;
   justify-content: right;
 }
-.display *{
+#display *{
   min-height: 40%;
   color: black;
   font-weight: bold;
 }
 
-.pave{
+#pave{
   border: 2px solid black;
   border-radius: 7px;
   width: 90%;
@@ -311,7 +311,7 @@ header{
   background-color: rgb(141, 153, 242);
 }
 
-.pave .pavButton{
+#pave .pavButton{
   font-size: 36px;
   margin: 5px;
   border-radius: 15px;
@@ -339,14 +339,14 @@ header{
 .dark_mode #calculatruice{
   background-color: #362222;
 }
-.dark_mode .display *{
+.dark_mode #display *{
   color: #B5B5B5;
 }
  
-.dark_mode .pave, .dark_mode .display{
+.dark_mode #pave, .dark_mode #display{
   background-color: #423F3E;
 }
-.dark_mode .pavButton{
+.dark_mode #pave .pavButton{
   background-color: #2B2B2B;
   color: #bbbbbb;
   border-color: #cccccc;
@@ -359,26 +359,39 @@ header{
 
 
 @media (max-width:700px){
-main{
+#calculatruice{
   height: 60%
 }
-.pavButton{
+#pave .pavButton{
   font-size: 20px;
 }
 };
 
 @media (max-width:550px){
-main{
-  height: 50%
+.dark_mode, .light_mode{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}  
+#calculatruice{
+  position: relative;
+  top: 25px;
+  left: 5px;
+  height: 100%;
+  /* min-height: 500px; */
+  width: 100%;
+  padding: 15px;
 }
-.pavButton{
-  font-size: 14px;
+#pave{
+  height: 80%;
+  margin: auto  ;
+}
+#pave .pavButton{
+  font-size: 20px;
+  height: 60px;
 }
 
 };
 
-@media screen {
-  
-}
 
 </style>
