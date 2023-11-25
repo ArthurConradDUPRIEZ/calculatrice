@@ -20,44 +20,128 @@
       </div>
     </header>
     <main>
-      <div id="calculatruice">
+      <div id="calculatrice">
         <div id="display">
-            <div id="expression">{{ expression }}</div>
             <div id="result">{{ result }}</div>
+            <div id="expression">{{ expression }}</div> 
         </div>
         <div id="pave">
-          <input v-for="item in listInput" type="button" class="pavButton" :value="item.button" @click="item.function">
+          <input v-for="(item, key) in listInput" v-bind:key="key" type="button" class="pavButton" :value="item.button" @click="item.function">
         </div> 
+        <div id="memory">
+          <h2>Historique</h2>
+          <div id="containerMemory">
+            <div v-for="(item,index) in resultMemory" :key="index">
+              <p>{{ item.result }}</p>
+              <p>{{ item.expression }}</p>
+            </div>
+            
+          </div>
+        </div>
       </div>
     </main>
   </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 
 import { ref, onMounted, watch } from 'vue';
 
-const result = ref(0);
+const result = ref('');
 const savedExpression = ref('');
-const expression = ref('');
+const expression = ref('0');
 const theme = ref(false);
 
-function write(n) {                                                     // fonction permettant d'ecrire le la valeur ou l'opération désiré
-  expression.value = expression.value + n
+
+
+
+const resultMemory = ref([]);
+
+
+const readyToWrite = ref(true);
+const tempExpression = ref('');
+
+const listOperator = ['*','/','+','-']
+
+
+
+
+function number(n: string){
+  if (readyToWrite.value){
+    if (n === '0'){
+      expression.value = '0.';
+    }else {
+      expression.value = n;
+    }
+    
+    readyToWrite.value = false;
+  } else{
+    expression.value = expression.value + n;
+  }
 }
+
+function operator(n: string){
+  if(result.value === '' && expression.value === '0'){
+    result.value = '0' + n;
+    console.log(result.value[0])
+  }
+  else if (result.value.length >= 1 && (listOperator.includes(result.value[result.value.length - 1])) && (readyToWrite.value)){
+    result.value = result.value.slice(0, -1) + n;
+  } else if (result.value === '' && expression.value !== '0'){
+    result.value = expression.value + n;
+    readyToWrite.value = true;
+  } else if (result.value !== '' && expression.value !== '0' && readyToWrite.value === false && !result.value.includes('=')){
+    result.value = eval(result.value + expression.value) + n;
+    readyToWrite.value = true;
+  } else if (result.value.length >= 1 && result.value[result.value.length - 1] === '=' ){
+    result.value = expression.value + n;
+  }
+}
+
+function dat(){
+  if (readyToWrite.value){
+    expression.value = '0.'
+    readyToWrite.value = false;
+  } else{
+    expression.value = expression.value + '.'
+  }
+}
+
+
+function memory() {
+  resultMemory.value.push({
+    result: result.value,
+    expression: expression.value
+  });
+}
+
 function remove(){                                                      // fonction permettant de supprimer le dernier terme inscrit
   expression.value = expression.value.slice(0, -1);
+  if (expression.value.length === 0){
+    expression.value = '0';
+    readyToWrite.value = true;
+  }
 }
+
 function del(){                                                         // fonction remettant à 0 l'expression 
-  expression.value = '';
+  expression.value = '0';
+  result.value = '';
+  readyToWrite.value = true;
 }
 function calculation() {
-  try {
-    result.value = eval(expression.value);
-    savedExpression.value = expression.value;
-  } catch (error) {
-    window.alert("Une erreur s'est produite lors de la modification du signe. Veuillez vérifier l'expression.");
-  }
+
+    if (!result.value.includes('=')){
+
+      result.value = result.value + expression.value + '=';
+      // savedExpression.value = expression.value;
+      expression.value = eval(result.value.slice(0,-1));
+      readyToWrite.value = true
+      memory();
+    } else if (result.value.includes('=')) {
+      console.log('il y a un egal')
+      // result.value = 
+    }
+
 }
 
 function save(){                                                        // fonction permettant de revenir à la dernière expression non calculée
@@ -104,176 +188,164 @@ function fraction() {
 }
 
 
-function recup(){                                                       // fonction permettant de recupérer le résultat et de le réintroduire dans l'expression
-  expression.value = result.value.toString();
-}
-function signe() {
-  try {
-    if (expression.value === '') {
-      window.alert("L'expression est vide. Veuillez entrer une valeur pour la modifier.");
-    } else {
-      result.value = eval(expression.value) * -1;
-    }
-  } catch (error) {
-    window.alert("Une erreur s'est produite lors de la modification du signe. Veuillez vérifier l'expression.");
-  }
-}
+
+
+
+// function recup(){                                                       // fonction permettant de recupérer le résultat et de le réintroduire dans l'expression
+//   expression.value = result.value.toString();
+// }
+// function signe() {
+//   try {
+//     if (expression.value === '') {
+//       window.alert("L'expression est vide. Veuillez entrer une valeur pour la modifier.");
+//     } else {
+//       result.value = eval(expression.value) * -1;
+//     }
+//   } catch (error) {
+//     window.alert("Une erreur s'est produite lors de la modification du signe. Veuillez vérifier l'expression.");
+//   }
+// }
 
 
 const listInput = ref([
   {
     button: '%',
-    function: pourcent
+    function: 'pourcent'
   },
   {
     button: 'CE',
-    function: save
+    function: 'save'
   },
   {
     button: 'C',
-    function: del
+    function: () => del()
   },
   {
     button: '<-',
-    function: remove
+    function: () => remove()
   },
   {
     button: '1/x',
-    function: fraction
+    function: 'fraction'
   },
   {
     button: 'x²',
-    function: puissance
+    function: 'puissance'
   },
   {
-    button: 'val',
-    function: recup
+    button: ' ²√x',
+    function: 'recup'
   },
   {
     button: '/',
-    function: () => write('/')
+    function: () => operator('/')
   },
   {
     button: '7',
-    function: () => write(7)
+    function: () => number('7')
   },
   {
     button: '8',
-    function: () => write(8)
+    function: () => number('8')
   },
   {
     button: '9',
-    function: () => write(9)
+    function: () => number('9')
   },
   {
     button: '*',
-    function: () => write('*')
+    function: () => operator('*')
   },
   {
     button: '4',
-    function: () => write(4)
+    function: () => number('4')
   },
   {
     button: '5',
-    function: () => write(5)
+    function: () => number('5')
   },
   {
     button: '6',
-    function: () => write(6)
+    function: () => number('6')
   },
   {
     button: '-',
-    function: () => write('-')
+    function: () => operator('-')
   },
   {
     button: '1',
-    function: () => write(1)
+    function: () => number('1')
   },
   {
     button: '2',
-    function: () => write(2)
+    function: () => number('2')
   },
   {
     button: '3',
-    function: () => write(3)
+    function: () => number('3')
   },
   {
     button: '+',
-    function: () => write('+')
+    function: () => operator('+')
   },
   {
     button: '+/-',
-    function: signe
+    function: 'signe'
   },
   {
     button: '0',
-    function: () => write(0)
+    function: () => number('0')
   },
   {
     button: '.',
-    function: () => write('.')
+    function: () => dat()
   },
   {
     button: '=',
-    function: calculation
+    function: () => calculation()
   },
   
   
 ]);
 
 
-function showClick(key){                                                  // fonction permettant d'afficher la touche qui a été enfoncer sur le clavier
+function showClick(key : any){                                                  // fonction permettant d'afficher la touche qui a été enfoncer sur le clavier
   const buttonSelected = document.querySelector(`input[value="${key}"]`); // on recupere le bouton correspondant à la touche de clavier appuyée
-  buttonSelected.classList.add('clicked');                                // on ajoute la class clicked qui possède certains style
-  buttonSelected.click();                                                 // on click sur la touche désirée
-  setTimeout(() =>{                                                       // et on enlève la class clicked 0.2 sec après 
-    buttonSelected.classList.remove('clicked');                           
-  }, 200)
+  if (buttonSelected) {
+    buttonSelected.classList.add('clicked');                                // on ajoute la class clicked qui possède certains style
+    buttonSelected.click();                                                 // on click sur la touche désirée
+    setTimeout(() =>{                                                       // et on enlève la class clicked 0.2 sec après 
+      buttonSelected.classList.remove('clicked');                           
+    }, 200)
+  }
+  
 }
 
 
-function handleKeydown(event) {
+function handleKeydown(event:any) {
   const key = event.key;
-
+  const operators = ['0','1','2','3','4','5','6','7','8','9','*','-','+','/','.','%']
   if (key === 'Enter') {
     showClick('=');
   } 
-  else if (key >= '0' && key <= '9') {
+  else if (operators.includes(key)) {
     // const buttonSelected = document.querySelector(`input[value="${key}"]`);
     showClick(key);
   } 
   else if (key === 'Backspace') {
     showClick('<-')
-  } 
-  else if (key === '*') {
-    showClick(key);
-  } 
-  else if (key === '+') {
-    showClick(key);
-  } 
-  else if (key === '-') {
-    showClick(key);
-  } 
-  else if (key === '.') {
-    showClick(key);
-  } 
-  else if (key === '/') {
-    showClick(key);
   }
   else if (key === 'ArrowUp') {
     showClick('val')
   }
   else if (key === 'Delete') {
-    showClick('C')
+    showClick('CE')
   }
   else if (key === 'Escape') {
-    showClick('CE')
+    showClick('C')
   }
   else if (key === '²') {
     showClick('x²')
-  }
-  else if (key === '%') {
-    showClick(key)
   }
 }
 
@@ -304,7 +376,7 @@ header{
   height: 100%;
 }
 
-#calculatruice{
+#calculatrice{
   position: absolute;
   left: 25%;
   top: 5%;
@@ -314,6 +386,9 @@ header{
   border: 3px solid black;
   border-radius: 10px;
   background-color: rgb(97, 114, 242);
+}
+#calculatrice #expression{
+  font-size: 24px;
 }
 
 #display{
@@ -368,12 +443,62 @@ header{
   background-color: rgb(231, 102, 42);
 }
 
+#memory{
+  /* display: flex; */
+  position: absolute;
+  top: 10px;
+  right: -252px;
+  background-color: #9d94ff;
+  width: 250px;
+  height: calc(100% - 20px);
+  border: 1px solid black;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  
+}
+
+#memory h2{
+  font-size: 24px;
+  padding: 10px;
+}
+
+#memory #containerMemory{
+  height: 90%;
+  width: 90%;
+  min-width: 150px;
+  background-color: #c4caf5;
+  margin: auto;
+  overflow-y: auto;
+  border: 1px solid black;
+  border-radius:5px;
+  overflow: auto;
+  
+}
+
+#memory #containerMemory div{
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid black;
+  
+}
+#containerMemory div p{
+  width: 100%;
+  padding: 0px 5px 0px 0px;
+  font-size: 20px;
+  font-weight: bold;
+  align-items: center;
+  /* justify-content: right; */
+  text-align: right;
+}
+
+
+
 .dark_mode{
   background-color: #171010;
   padding: 10px;
   height: 100vh;
 }
-.dark_mode #calculatruice{
+.dark_mode #calculatrice{
   background-color: #362222;
 }
 .dark_mode #display *{
@@ -389,14 +514,34 @@ header{
   border-color: #cccccc;
 }
 
+/* Largeur de la scrollbar */
+::-webkit-scrollbar {
+    width: 12px;
+}
 
+/* Couleur de fond de la scrollbar */
+::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+    
+}
+
+/* Couleur de la poignée de la scrollbar */
+::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 5px;
+}
+
+/* Changement de couleur lorsque la souris survole la poignée */
+::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
 
 
 
 
 
 @media (max-width:700px){
-#calculatruice{
+#calculatrice{
   height: 60%
 }
 #pave .pavButton{
@@ -410,7 +555,7 @@ header{
   width: 100%;
   height: 100%;
 }  
-#calculatruice{
+#calculatrice{
   position: relative;
   top: 25px;
   left: 5px;
